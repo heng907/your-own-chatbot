@@ -1,4 +1,4 @@
-# your own chatbot
+# Your Own ChatBot
 
 以 FastAPI 為後端、原生 JavaScript 為前端的全端 ChatGPT 介面，支援長期記憶、多模態輸入、自動模型路由、Tool Use、MCP 整合與圖片生成。
 
@@ -200,3 +200,6 @@ Browser
                       ├─ mcp-server-fetch
                       └─ mcp-server-sqlite (mcp_data.db)
 ```
+---
+## Demo
+[![Demo Video](https://img.youtube.com/vi/f5pQx4JN4L4/maxresdefault.jpg)](https://www.youtube.com/watch?v=f5pQx4JN4L4)
