@@ -1,4 +1,4 @@
-# MyChatGPT v2
+# your own chatbot
 
 以 FastAPI 為後端、原生 JavaScript 為前端的全端 ChatGPT 介面，支援長期記憶、多模態輸入、自動模型路由、Tool Use、MCP 整合與圖片生成。
 
