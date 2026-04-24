@@ -70,20 +70,20 @@ hw2/
 ### 1. 建立 Conda 環境
 
 ```bash
-conda create -n hw2 python=3.11 -y
-conda activate hw2
+conda create -n chatbot python=3.11 -y
+conda activate chatbot
 ```
 
 ### 2. 安裝相依套件
 
 ```bash
-cd hw2
+cd chatbot
 pip install -r requirements.txt
 ```
 
 ### 3. 設定 API Key
 
-在 `hw2/` 根目錄建立 `.env` 檔案：
+在 `chatbot/` 根目錄建立 `.env` 檔案：
 
 ```env
 OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxx
