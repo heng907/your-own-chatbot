@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyChatGPT v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo-icon">✦</div>
+    <span class="logo-text">MyChatGPT v2</span>
+  </div>
+
+  <!-- 功能開關 -->
+  <div class="field-group">
+    <div class="section-label">功能設定</div>
+    <div class="toggle-row">
+      <label for="toggle-auto-route">自動選模型</label>
+      <label class="toggle">
+        <input type="checkbox" id="toggle-auto-route" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <label for="toggle-tools">Tool Use</label>
+      <label class="toggle">
+        <input type="checkbox" id="toggle-tools" checked>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 模型設定 -->
+  <div class="field-group">
+    <div class="section-label">模型設定</div>
+    <label>LLM 模型（Auto 時自動覆蓋）</label>
+    <select id="model-select">
+      <option value="auto" selected>✦ Auto（自動路由）</option>
+      <optgroup label="GPT-4o 系列">
+        <option value="gpt-4o">gpt-4o</option>
+        <option value="gpt-4o-mini">gpt-4o-mini</option>
+      </optgroup>
+      <optgroup label="o 系列 (Reasoning)">
+        <option value="o3-mini">o3-mini</option>
+        <option value="o1-mini">o1-mini</option>
+      </optgroup>
+      <optgroup label="GPT-3.5">
+        <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <hr class="divider">
+
+  <!-- System Prompt -->
+  <div class="field-group">
+    <div class="section-label">System Prompt</div>
+    <textarea id="system-prompt">你是一個有幫助的 AI 助理，請用繁體中文回答，除非使用者要求其他語言。</textarea>
+  </div>
+
+  <hr class="divider">
+
+  <!-- API 參數 -->
+  <div class="field-group">
+    <div class="section-label">API 參數</div>
+
+    <label>Temperature</label>
+    <div class="range-row">
+      <input type="range" id="temperature" min="0" max="2" step="0.05" value="0.7"
+        oninput="document.getElementById('temp-val').textContent=parseFloat(this.value).toFixed(2)">
+      <span class="range-val" id="temp-val">0.70</span>
+    </div>
+
+    <label style="margin-top:8px">Max Tokens</label>
+    <div class="range-row">
+      <input type="range" id="max-tokens" min="256" max="4096" step="256" value="2048"
+        oninput="document.getElementById('tok-val').textContent=this.value">
+      <span class="range-val" id="tok-val">2048</span>
+    </div>
+
+    <label style="margin-top:8px">記憶對話輪數</label>
+    <div class="range-row">
+      <input type="range" id="memory-turns" min="0" max="20" step="1" value="6"
+        oninput="document.getElementById('mem-val').textContent=this.value">
+      <span class="range-val" id="mem-val">6</span>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Long-term Memory -->
+  <div class="field-group">
+    <div class="section-label">長期記憶</div>
+    <div class="memory-list" id="memory-list">
+      <span style="font-size:11px;color:var(--text-muted)">載入中…</span>
+    </div>
+    <div style="display:flex;gap:6px;margin-top:6px">
+      <input type="text" id="mem-key-input" placeholder="key" style="flex:1">
+      <input type="text" id="mem-val-input" placeholder="value" style="flex:2">
+      <button class="clear-btn" style="width:auto;padding:8px 10px" onclick="addMemory()">+</button>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- 過去對話 -->
+  <div class="field-group">
+    <div class="section-label">對話記錄</div>
+    <input type="text" id="conv-search" placeholder="🔍 搜尋對話內容…"
+      style="margin-bottom:6px">
+    <div class="conv-list" id="conv-list">
+      <span style="font-size:11px;color:var(--text-muted)">載入中…</span>
+    </div>
+    <button class="clear-btn" style="margin-top:6px" onclick="newChat()">＋ 新對話</button>
+  </div>
+
+  <hr class="divider">
+
+  <div id="token-info">Token 使用：<span id="token-count">0</span></div>
+  <button class="clear-btn" onclick="clearCurrentChat()">🗑 清除目前對話</button>
+</aside>
+
+<!-- MAIN -->
+<main id="main">
+  <header id="chat-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <button id="sidebar-toggle" onclick="openSidebar()">☰</button>
+      <h2>對話</h2>
+    </div>
+    <div id="model-badge">
+      <span id="model-badge-text">Auto</span>
+      <div class="model-reason-tooltip" id="model-reason-tooltip">選擇模型中…</div>
+    </div>
+  </header>
+
+  <div id="messages">
+    <div class="welcome" id="welcome-msg">
+      <div class="big-icon">✦</div>
+      <h3>MyChatGPT v2</h3>
+      <p>支援長期記憶、圖片輸入、自動模型路由、Tool Use 與 MCP。<br>在左側設定參數後開始對話。</p>
+    </div>
+  </div>
+
+  <div id="input-area">
+    <div id="image-preview-strip"></div>
+    <div id="input-row">
+      <button id="attach-btn" title="附加圖片" onclick="triggerImageUpload()">📎</button>
+      <input type="file" id="image-file-input" accept="image/*" multiple style="display:none">
+      <textarea id="user-input" rows="1" placeholder="輸入訊息… (支援圖片、工具呼叫)"></textarea>
+      <button id="send-btn" title="送出 (Enter)">➤</button>
+    </div>
+    <div id="input-hint">Enter 送出 · Shift+Enter 換行 · API Key 儲存於後端 .env</div>
+  </div>
+</main>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
