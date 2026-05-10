@@ -23,7 +23,7 @@
 ## 專案結構
 
 ```
-hw2/
+your-own-chatbot/
 ├── backend/
 │   ├── main.py                  # FastAPI 入口，CORS、路由註冊、靜態檔案
 │   ├── config.py                # pydantic-settings，讀取 .env
